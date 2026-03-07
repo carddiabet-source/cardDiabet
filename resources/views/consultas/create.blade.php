@@ -6,367 +6,260 @@
 
 <div class="max-w-7xl mx-auto bg-white shadow-lg rounded-xl p-10">
 
-    <h2 class="text-3xl font-bold mb-10 text-gray-800">
-        Cadastrar Nova Consulta
-    </h2>
+<h2 class="text-3xl font-bold mb-10 text-gray-800 border-b pb-4">
+Cadastrar Nova Consulta
+</h2>
 
-    @if ($errors->any())
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl relative mb-8" role="alert">
-            <strong class="font-bold">Opa! Encontramos alguns erros:</strong>
-            <ul class="mt-3 list-disc list-inside text-sm">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+@if ($errors->any())
+<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mb-8">
+<strong class="font-bold">Encontramos alguns erros:</strong>
+<ul class="mt-3 list-disc list-inside text-sm">
+@foreach ($errors->all() as $error)
+<li>{{ $error }}</li>
+@endforeach
+</ul>
+</div>
+@endif
 
-    <form action="{{ route('consultas.store', ['id' => $gestante->id]) }}" method="POST">
-        @csrf
+<form action="{{ route('consultas.store', ['id' => $gestante->id]) }}" method="POST">
+@csrf
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
 
-            <!-- COLUNA 1 -->
-            <div class="bg-gray-50 p-6 rounded-xl shadow-sm space-y-6">
+<!-- DADOS DA CONSULTA -->
+<div class="bg-gray-50 p-6 rounded-xl shadow-sm space-y-5">
 
-                <h3 class="text-lg font-semibold border-b pb-2 text-gray-700">Dados da Consulta</h3>
+<h3 class="text-lg font-semibold border-b pb-2 text-gray-700">
+Dados da Consulta
+</h3>
 
-                <div>
-                    <label class="block text-sm font-medium mb-1">Data da Consulta</label>
-                    <input type="date" name="data_consulta"
-                        value="{{ old('data_consulta', date('Y-m-d')) }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400" required>
-                </div>
-
-                <h3 class="text-lg font-semibold border-b pt-4 pb-2 text-gray-700">Dados Maternos</h3>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Idade</label>
-                    <input type="number" name="idade"
-                        min="10" max="49"
-                        value="{{ old('idade', $gestante->idade) }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400" required>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Idade Gestacional (semanas)</label>
-                    <input type="number" name="idade_gestacional"
-                        min="4" max="42"
-                        value="{{ old('idade_gestacional') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400" required>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Altura (cm)</label>
-                    <input type="number" name="altura"
-                        min="140" max="190"
-                        value="{{ old('altura') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Peso (kg)</label>
-                    <input type="number" step="0.1" name="peso"
-                        min="30" max="300"
-                        value="{{ old('peso') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-            </div>
-
-            <!-- COLUNA 2 -->
-            <div class="bg-gray-50 p-6 rounded-xl shadow-sm space-y-6">
-
-                <h3 class="text-lg font-semibold border-b pb-2 text-gray-700">Sinais Vitais</h3>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Pressão Sistólica</label>
-                    <input type="number" name="pressao_sistolica"
-                        min="50" max="300"
-                        value="{{ old('pressao_sistolica') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">BPM Materno</label>
-                    <input type="number" name="bpm_materno"
-                        min="20" max="300"
-                        value="{{ old('bpm_materno') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Saturação O₂ (%)</label>
-                    <input type="number" name="saturacao"
-                        min="50" max="100"
-                        value="{{ old('saturacao') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Temperatura (°C)</label>
-                    <input type="number" step="0.1" name="temperatura_corporal"
-                        min="30" max="42"
-                        value="{{ old('temperatura_corporal') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Obesidade Pré-Gestacional</label>
-                    <select name="obesidade_pre_gestacional" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                        <option value="0" {{ old('obesidade_pre_gestacional') == 0 ? 'selected' : '' }}>Não</option>
-                        <option value="1" {{ old('obesidade_pre_gestacional') == 1 ? 'selected' : '' }}>Sim</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Diabetes Gestacional</label>
-                    <select name="diabetes_gestacional" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                        <option value="0" {{ old('diabetes_gestacional') == 0 ? 'selected' : '' }}>Não</option>
-                        <option value="1" {{ old('diabetes_gestacional') == 1 ? 'selected' : '' }}>Sim</option>
-                    </select>
-                </div>
-
-            </div>
-
-            <!-- COLUNA 3 -->
-            <div class="bg-gray-50 p-6 rounded-xl shadow-sm space-y-6">
-
-                <h3 class="text-lg font-semibold border-b pb-2 text-gray-700">Dados Laboratoriais</h3>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Glicemia Jejum</label>
-                    <input type="number" step="0.1" name="glicemia_jejum"
-                        min="20" max="1000"
-                        value="{{ old('glicemia_jejum') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Glicemia Pós-Prandial</label>
-                    <input type="number" step="0.1" name="glicemia_pos_prandial"
-                        min="20" max="1000"
-                        value="{{ old('glicemia_pos_prandial') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">HbA1c (%)</label>
-                    <input type="number" step="0.1" name="hba1c"
-                        min="3" max="20"
-                        value="{{ old('hba1c') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-            </div>
-
-            <!-- COLUNA 4 -->
-            <div class="bg-gray-50 p-6 rounded-xl shadow-sm space-y-6">
-
-                <h3 class="text-lg font-semibold border-b pb-2 text-gray-700">Dados Fetais</h3>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">FC Fetal (bpm)</label>
-                    <input type="number" name="frequencia_cardiaca_fetal"
-                        min="0" max="300"
-                        value="{{ old('frequencia_cardiaca_fetal') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Circ. Cefálica (mm)</label>
-                    <input type="number" step="0.1" name="circunferencia_cefalica_fetal_mm"
-                        min="20" max="380"
-                        value="{{ old('circunferencia_cefalica_fetal_mm') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Circ. Abdominal (mm)</label>
-                    <input type="number" step="0.1" name="circunferencia_abdominal_mm"
-                        min="20" max="380"
-                        value="{{ old('circunferencia_abdominal_mm') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Comp. do Fêmur (mm)</label>
-                    <input type="number" step="0.1" name="comprimento_femur_mm"
-                        min="2" max="80"
-                        value="{{ old('comprimento_femur_mm') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Translucência Nucal (mm)</label>
-                    <input type="number" step="0.1" name="translucencia_nucal_mm"
-                        min="0.5" max="6"
-                        value="{{ old('translucencia_nucal_mm') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <h3 class="text-lg font-semibold border-b pt-4 pb-2 text-gray-700">
-                    Avaliação Cardíaca Fetal
-                </h3>
 <div>
-    <label class="block text-sm font-medium mb-1">Doppler Ducto Venoso</label>
-    <select name="doppler_ducto_venoso"
-        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400
-        @error('doppler_ducto_venoso') border-red-500 ring-red-400 @enderror"
-        required>
+<label class="block text-sm font-medium">Data da Consulta</label>
+<input type="date" name="data_consulta"
+value="{{ old('data_consulta', date('Y-m-d')) }}"
+class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400" required>
+</div>
 
-        <option value="">Selecione...</option>
+<div>
+<label class="block text-sm font-medium">Idade</label>
+<input type="number" name="idade"
+min="10" max="49"
+value="{{ old('idade', $gestante->idade) }}"
+class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400" required>
+</div>
 
-            <option value="Ausente"
-                {{ old('doppler_ducto_venoso') == 'Ausente' ? 'selected' : '' }}>
-                Ausente
-            </option>
+<div>
+<label class="block text-sm font-medium">Idade Gestacional</label>
+<input type="number" name="idade_gestacional"
+min="4" max="42"
+value="{{ old('idade_gestacional') }}"
+class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400" required>
+</div>
 
-            <option value="Fluxo normal"
-                {{ old('doppler_ducto_venoso') == 'Fluxo normal' ? 'selected' : '' }}>
-                Fluxo normal
-            </option>
+</div>
 
-            <option value="Fluxo aumentado"
-                {{ old('doppler_ducto_venoso') == 'Fluxo aumentado' ? 'selected' : '' }}>
-                Fluxo aumentado
-            </option>
 
-            <option value="Fluxo reverso"
-                {{ old('doppler_ducto_venoso') == 'Fluxo reverso' ? 'selected' : '' }}>
-                Fluxo reverso
-            </option>
+<!-- DADOS MATERNOS -->
+<div class="bg-gray-50 p-6 rounded-xl shadow-sm space-y-5">
 
-        </select>
-    </div>
+<h3 class="text-lg font-semibold border-b pb-2 text-gray-700">
+Dados Maternos
+</h3>
 
-                <div>
-                    <label class="block text-sm font-medium mb-1">Eixo Cardíaco (°)</label>
-                    <input type="number" name="eixo_cardiaco"
-                        min="0" max="180"
-                        value="{{ old('eixo_cardiaco') }}"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
-                </div>
+<div>
+<label class="block text-sm font-medium">Altura (cm)</label>
+<input type="number" name="altura"
+min="140" max="190"
+value="{{ old('altura') }}"
+class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
+</div>
 
-               <div>
-                <label class="block text-sm font-medium mb-1">Quatro Câmaras</label>
-                <select name="quatro_camaras"
-                    class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400
-                    @error('quatro_camaras') border-red-500 ring-red-400 @enderror"
-                    required>
+<div>
+<label class="block text-sm font-medium">Peso (kg)</label>
+<input type="number" step="0.1" name="peso"
+min="30" max="300"
+value="{{ old('peso') }}"
+class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
+</div>
 
-                    <option value="">Selecione...</option>
+<div>
+<label class="block text-sm font-medium">Obesidade Pré-Gestacional</label>
+<select name="obesidade_pre_gestacional"
+class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
+<option value="0">Não</option>
+<option value="1">Sim</option>
+</select>
+</div>
 
-                    <option value="Não visível"
-                        {{ old('quatro_camaras') == 'Não visível' ? 'selected' : '' }}>
-                        Não visível
-                    </option>
+<div>
+<label class="block text-sm font-medium">Diabetes Gestacional</label>
+<select name="diabetes_gestacional"
+class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400">
+<option value="0">Não</option>
+<option value="1">Sim</option>
+</select>
+</div>
 
-                    <option value="Normal"
-                        {{ old('quatro_camaras') == 'Normal' ? 'selected' : '' }}>
-                        Normal
-                    </option>
+</div>
 
-                </select>
-            </div>
 
-                <div>
-                    <label class="block text-sm font-medium mb-1">CHD Confirmada?</label>
-                    <select name="chd_confirmada"
-                        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400" required>
-                        <option value="0" {{ old('chd_confirmada', '0') == '0' ? 'selected' : '' }}>Não</option>
-                        <option value="1" {{ old('chd_confirmada') == '1' ? 'selected' : '' }}>Sim</option>
-                    </select>
-                </div>
+<!-- SINAIS VITAIS -->
+<div class="bg-gray-50 p-6 rounded-xl shadow-sm space-y-5">
 
-              <div>
-    <label class="block text-sm font-medium mb-1">Tipo de CHD</label>
-    <select name="tipo_chd"
-        id="tipo_chd"
-        class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400
-        @error('tipo_chd') border-red-500 ring-red-400 @enderror">
+<h3 class="text-lg font-semibold border-b pb-2 text-gray-700">
+Sinais Vitais
+</h3>
 
-        <option value="">Selecione...</option>
+<div>
+<label>Pressão Sistólica</label>
+<input type="number" name="pressao_sistolica"
+class="w-full border rounded-lg p-2">
+</div>
 
-            <option value="Cardiomiopatia Hipertrófica"
-                {{ old('tipo_chd') == 'Cardiomiopatia Hipertrófica' ? 'selected' : '' }}>
-                Cardiomiopatia Hipertrófica
-            </option>
+<div>
+<label>BPM Materno</label>
+<input type="number" name="bpm_materno"
+class="w-full border rounded-lg p-2">
+</div>
 
-            <option value="PCA — Persistência do Canal Arterial"
-                {{ old('tipo_chd') == 'PCA — Persistência do Canal Arterial' ? 'selected' : '' }}>
-                PCA — Persistência do Canal Arterial
-            </option>
+<div>
+<label>Saturação (%)</label>
+<input type="number" name="saturacao"
+class="w-full border rounded-lg p-2">
+</div>
 
-            <option value="DSV — Defeito do Septo Ventricular"
-                {{ old('tipo_chd') == 'DSV — Defeito do Septo Ventricular' ? 'selected' : '' }}>
-                DSV — Defeito do Septo Ventricular
-            </option>
+<div>
+<label>Temperatura (°C)</label>
+<input type="number" step="0.1" name="temperatura_corporal"
+class="w-full border rounded-lg p-2">
+</div>
 
-            <option value="DSA — Defeito do Septo Atrial"
-                {{ old('tipo_chd') == 'DSA — Defeito do Septo Atrial' ? 'selected' : '' }}>
-                DSA — Defeito do Septo Atrial
-            </option>
+</div>
 
-            <option value="DSAV — Defeito do Septo Atrioventricular"
-                {{ old('tipo_chd') == 'DSAV — Defeito do Septo Atrioventricular' ? 'selected' : '' }}>
-                DSAV — Defeito do Septo Atrioventricular
-            </option>
 
-            <option value="Estenose ou Hipoplasia Pulmonar"
-                {{ old('tipo_chd') == 'Estenose ou Hipoplasia Pulmonar' ? 'selected' : '' }}>
-                Estenose ou Hipoplasia Pulmonar
-            </option>
+<!-- FATORES DE RISCO -->
+<div class="bg-gray-50 p-6 rounded-xl shadow-sm space-y-5">
 
-            <option value="Alteração da Veia Cava"
-                {{ old('tipo_chd') == 'Alteração da Veia Cava' ? 'selected' : '' }}>
-                Alteração da Veia Cava
-            </option>
+<h3 class="text-lg font-semibold border-b pb-2 text-gray-700">
+Fatores de Risco
+</h3>
 
-            <option value="TGA — Transposição das Grandes Artérias"
-                {{ old('tipo_chd') == 'TGA — Transposição das Grandes Artérias' ? 'selected' : '' }}>
-                TGA — Transposição das Grandes Artérias
-            </option>
+<select name="hipertensao" class="w-full border rounded-lg p-2">
+<option value="0">Hipertensão: Não</option>
+<option value="1">Hipertensão: Sim</option>
+</select>
 
-            <option value="Tetralogia de Fallot"
-                {{ old('tipo_chd') == 'Tetralogia de Fallot' ? 'selected' : '' }}>
-                Tetralogia de Fallot
-            </option>
+<select name="hipertensao_pre_eclampsia" class="w-full border rounded-lg p-2">
+<option value="0">Pré-eclâmpsia: Não</option>
+<option value="1">Pré-eclâmpsia: Sim</option>
+</select>
 
-            <option value="Estenose ou Hipoplasia Aórtica"
-                {{ old('tipo_chd') == 'Estenose ou Hipoplasia Aórtica' ? 'selected' : '' }}>
-                Estenose ou Hipoplasia Aórtica
-            </option>
+<select name="historico_familiar_chd" class="w-full border rounded-lg p-2">
+<option value="0">Histórico Familiar CHD: Não</option>
+<option value="1">Histórico Familiar CHD: Sim</option>
+</select>
 
-            <option value="Insuficiência ou Hipoplasia Tricúspide"
-                {{ old('tipo_chd') == 'Insuficiência ou Hipoplasia Tricúspide' ? 'selected' : '' }}>
-                Insuficiência ou Hipoplasia Tricúspide
-            </option>
+<select name="uso_medicamentos" class="w-full border rounded-lg p-2">
+<option value="0">Uso de Medicamentos: Não</option>
+<option value="1">Uso de Medicamentos: Sim</option>
+</select>
 
-            <option value="Doença Valvar Múltipla"
-                {{ old('tipo_chd') == 'Doença Valvar Múltipla' ? 'selected' : '' }}>
-                Doença Valvar Múltipla
-            </option>
+<select name="tabagismo" class="w-full border rounded-lg p-2">
+<option value="0">Tabagismo: Não</option>
+<option value="1">Tabagismo: Sim</option>
+</select>
 
-            <option value="Hipoplasia do Coração Esquerdo"
-                {{ old('tipo_chd') == 'Hipoplasia do Coração Esquerdo' ? 'selected' : '' }}>
-                Hipoplasia do Coração Esquerdo
-            </option>
+<select name="alcoolismo" class="w-full border rounded-lg p-2">
+<option value="0">Alcoolismo: Não</option>
+<option value="1">Alcoolismo: Sim</option>
+</select>
 
-        </select>
-    </div>
-            </div>
+</div>
 
-        </div>
 
-        <div class="mt-12 text-right">
-            <button type="submit"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl shadow-md transition">
-                Salvar Consulta
-            </button>
-        </div>
+<!-- DADOS FETAIS -->
+<div class="bg-gray-50 p-6 rounded-xl shadow-sm space-y-5">
 
-    </form>
+<h3 class="text-lg font-semibold border-b pb-2 text-gray-700">
+Dados Fetais
+</h3>
+
+<input type="number" name="frequencia_cardiaca_fetal"
+placeholder="Frequência Cardíaca Fetal"
+class="w-full border rounded-lg p-2">
+
+<input type="number" step="0.1" name="circunferencia_cefalica_fetal_mm"
+placeholder="Circunferência Cefálica (mm)"
+class="w-full border rounded-lg p-2">
+
+<input type="number" step="0.1" name="circunferencia_abdominal_mm"
+placeholder="Circunferência Abdominal (mm)"
+class="w-full border rounded-lg p-2">
+
+<input type="number" step="0.1" name="comprimento_femur_mm"
+placeholder="Comprimento do Fêmur (mm)"
+class="w-full border rounded-lg p-2">
+
+<input type="number" step="0.1" name="translucencia_nucal_mm"
+placeholder="Translucência Nucal"
+class="w-full border rounded-lg p-2">
+
+</div>
+
+
+<!-- AVALIAÇÃO CARDÍACA -->
+<div class="bg-gray-50 p-6 rounded-xl shadow-sm space-y-5">
+
+<h3 class="text-lg font-semibold border-b pb-2 text-gray-700">
+Avaliação Cardíaca
+</h3>
+
+<select name="doppler_ducto_venoso" class="w-full border rounded-lg p-2">
+<option value="">Doppler Ducto Venoso</option>
+<option value="Ausente">Ausente</option>
+<option value="Fluxo normal">Fluxo normal</option>
+<option value="Fluxo aumentado">Fluxo aumentado</option>
+<option value="Fluxo reverso">Fluxo reverso</option>
+</select>
+
+<input type="number" name="eixo_cardiaco"
+placeholder="Eixo Cardíaco"
+class="w-full border rounded-lg p-2">
+
+<select name="quatro_camaras" class="w-full border rounded-lg p-2">
+<option value="">Quatro Câmaras</option>
+<option value="Normal">Normal</option>
+<option value="Não visível">Não visível</option>
+</select>
+
+<select name="chd_confirmada" class="w-full border rounded-lg p-2">
+<option value="0">CHD Confirmada: Não</option>
+<option value="1">CHD Confirmada: Sim</option>
+</select>
+
+<select name="tipo_chd" class="w-full border rounded-lg p-2">
+<option value="">Tipo de CHD</option>
+<option value="DSV — Defeito do Septo Ventricular">DSV</option>
+<option value="DSA — Defeito do Septo Atrial">DSA</option>
+<option value="Tetralogia de Fallot">Tetralogia de Fallot</option>
+<option value="TGA — Transposição das Grandes Artérias">TGA</option>
+<option value="Hipoplasia do Coração Esquerdo">Hipoplasia do Coração Esquerdo</option>
+</select>
+
+</div>
+
+</div>
+
+<div class="mt-10 text-right">
+
+<button type="submit"
+class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl shadow-md">
+Salvar Consulta
+</button>
+
+</div>
+
+</form>
 
 </div>
 

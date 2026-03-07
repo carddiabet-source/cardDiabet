@@ -25,6 +25,12 @@ class ConsultaController extends Controller
             'pressao_sistolica' => 'nullable|integer',
             'diabetes_gestacional' => 'required|boolean',
             'obesidade_pre_gestacional' => 'required|boolean',
+            'hipertensao' => 'required|boolean',
+            'hipertensao_pre_eclampsia' => 'required|boolean',
+            'historico_familiar_chd' => 'required|boolean',
+            'uso_medicamentos' => 'required|boolean',
+            'tabagismo' => 'required|boolean',
+            'alcoolismo' => 'required|boolean',
             'bpm_materno' => 'nullable|integer',
             'saturacao' => 'nullable|integer',
             'temperatura_corporal' => 'nullable|numeric',
@@ -209,6 +215,10 @@ private function importCsv(Request $request)
                 'hipertensao',
                 'hipertensao_pre_eclampsia',
                 'obesidade_pre_gestacional',
+                'historico_familiar_chd',
+                'uso_medicamentos',
+                'tabagismo',
+                'alcoolismo',
                 'alteracao_estrutural',
                 'chd_confirmada'
             ];
@@ -275,6 +285,12 @@ private function importCsv(Request $request)
 
                     'diabetes_gestacional' => $data['diabetes_gestacional'] ?? 0,
                     'obesidade_pre_gestacional' => $data['obesidade_pre_gestacional'] ?? 0,
+                    'hipertensao' => $data['hipertensao'] ?? 0,
+                    'hipertensao_pre_eclampsia' => $data['hipertensao_pre_eclampsia'] ?? 0,
+                    'historico_familiar_chd' => $data['historico_familiar_chd'] ?? 0,
+                    'uso_medicamentos' => $data['uso_medicamentos'] ?? 0,
+                    'tabagismo' => $data['tabagismo'] ?? 0,
+                    'alcoolismo' => $data['alcoolismo'] ?? 0,
 
                     'frequencia_cardiaca_fetal' => $data['frequencia_cardiaca_fetal'] ?? null,
 
@@ -364,6 +380,12 @@ private function importCsv(Request $request)
             'quatro_camaras' => 'nullable|string|max:255',
             'diabetes_gestacional' => 'required|boolean',
             'obesidade_pre_gestacional' => 'required|boolean',
+            'hipertensao' => 'required|boolean',
+            'hipertensao_pre_eclampsia' => 'required|boolean',
+            'historico_familiar_chd' => 'required|boolean',
+            'uso_medicamentos' => 'required|boolean',
+            'tabagismo' => 'required|boolean',
+            'alcoolismo' => 'required|boolean',
             'chd_confirmada' => 'required|boolean',
             'tipo_chd' => 'nullable|string|max:255'
         ]);
