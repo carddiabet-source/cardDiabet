@@ -44,6 +44,23 @@
 
     </div>
 
+    <!-- Análise do Python -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-700 mb-4">
+            Gráfico de Análise (via Python)
+        </h3>
+        @if(isset($pythonData))
+            <div class="mt-4">
+                {{-- Usamos {!! !!} para renderizar o HTML retornado pelo script Python --}}
+                {!! $pythonData !!}
+            </div>
+        @else
+            <p class="text-sm text-red-500">
+                Não foi possível carregar o gráfico. Verifique se o arquivo <code>storage/app/dados.csv</code> existe e se as dependências do Python (pandas, matplotlib) estão instaladas.
+            </p>
+        @endif
+    </div>
+
     <!-- Ações rápidas -->
     <div class="bg-white shadow rounded-lg p-6">
         <h3 class="text-lg font-semibold text-gray-700 mb-4">
