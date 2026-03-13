@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GestanteController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+<<<<<<< HEAD
 use App\Http\Controllers\AnaliseController;
 
 Route::get('/', function () {
@@ -17,6 +18,17 @@ Route::get('/', function () {
     return view('auth.login');
 })->name('login');
 
+=======
+use App\Http\Controllers\LoginController;
+
+
+Route::get('/', [LoginController::class, 'create'])->name('login')->middleware('guest'); // exibe o form
+Route::post('/login', [LoginController::class, 'store'])->name('login.store'); // envia form
+Route::post('/logout', [LoginController::class, 'destroy'])->name('logout'); // logout
+
+
+
+>>>>>>> salvando-commit
 // ROTAS PROTEGIDAS POR LOGIN
 Route::group(['middleware' => 'auth'], function () {
 
