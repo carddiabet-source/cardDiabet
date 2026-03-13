@@ -1,21 +1,39 @@
-// Em app/Http/Controllers/AnaliseController.php
+<?php
 
-use App\Jobs\ProcessarAnaliseIA;
-use App\Models\Consulta; // Ou o modelo que você usa
+namespace App\Http\Controllers;
 
-public function iniciarAnalise(Request $request)
+use Illuminate\Http\Request;
+use App\Jobs\AnalisarDadosIA;
+use Illuminate\Support\Facades\Cache;
+
+class AnaliseController extends Controller
 {
-    // Valide o request, encontre a consulta, etc.
-    $consulta = Consulta::findOrFail($request->input('consulta_id'));
+    // POST /analise
+    public function iniciarAnalise()
+    {
+            Log::info("ANALISE DISPARADA");
 
-    // Atualiza o status para indicar que a análise começou
-    $consulta->update(['status_analise' => 'processando']);
+        // Dispara o job
+        AnalisarDadosIA::dispatch();
 
-    // Dispara o job para ser executado em segundo plano
-    ProcessarAnaliseIA::dispatch($consulta);
+        return response()->json(['status' => 'ok']);
+    }
 
-    // Retorna uma resposta imediata para o usuário
-    return response()->json([
-        'message' => 'A análise foi iniciada com sucesso. O resultado estará disponível em breve.'
-    ]);
+    // GET /analise/status
+    public function verificarStatus()
+    {
+        $status = Cache::get('analise_ia_status', 'nao_iniciado');
+        return response()->json(['status' => $status]);
+    }
+
+    // GET /analise/resultado
+    public function obterResultado()
+    {
+        $resultado = Cache::get('resultado_analise_ia', [
+            'status' => 'nao_disponivel',
+            'imagens' => []
+        ]);
+
+        return response()->json($resultado);
+    }
 }

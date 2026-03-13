@@ -1,238 +1,134 @@
-# ==============================
-# 1. IMPORTAR BIBLIOTECAS
-# ==============================
-
 import pandas as pd
 import numpy as np
-import os
-from scipy.stats import shapiro, mannwhitneyu, chi2_contingency
-from warnings import filterwarnings
+import matplotlib.pyplot as plt
 import json
+import os
+import sys
+from warnings import filterwarnings
 
 filterwarnings('ignore')
 
-# ==============================
-# 2. CARREGAR BASE DE DADOS
-# ==============================
+# --- Diretórios ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+public_dir = os.path.join(BASE_DIR, "..", "public", "python_api")
+public_dir = os.path.abspath(public_dir)
 
-BASE_DIR = os.path.dirname(__file__)
-csv_path = os.path.join(BASE_DIR, "base_completa_final.csv")
+os.makedirs(public_dir, exist_ok=True)
 
-df = pd.read_csv(csv_path, sep=";")
+# ------------------------------
+# CARREGAR DADOS (CSV ou JSON)
+# ------------------------------
+def carregar_dados():
+    """Carrega dados de um arquivo CSV ou JSON passado como argumento de linha de comando."""
+    if len(sys.argv) < 2:
+        sys.exit("Erro: Nenhum dado de entrada (caminho do CSV ou JSON) foi fornecido.")
 
-df['chd_confirmada'] = df['chd_confirmada'].astype(int)
+    input_arg = sys.argv[1]
 
-# ==============================
-# 3. GERAR DADOS SINTÉTICOS
-# ==============================
+    if not os.path.exists(input_arg):
+        sys.exit(f"Erro: O arquivo de entrada não foi encontrado em '{input_arg}'.")
 
-def gerar_dados_sinteticos(df_original, valor_chd, n_amostras):
+    if input_arg.lower().endswith('.csv'):
+        return pd.read_csv(input_arg, sep=',', dtype=str)
+    elif input_arg.lower().endswith('.json'):
+        with open(input_arg, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return pd.json_normalize(data, 'historico_consultas', sep='_')
+    else:
+        sys.exit("Erro: Formato de arquivo não suportado. Use .csv ou .json.")
 
-    df_base = df_original[df_original['chd_confirmada'] == valor_chd]
+    return df
 
-    if df_base.empty:
-        df_base = df_original[df_original['chd_confirmada'] != valor_chd]
+df = carregar_dados()
 
-    novos_dados = {}
+# ------------------------------
+# TRATAMENTO DE DATAS E IDADE
+# ------------------------------
+def tratar_dados(df):
+    """Converte tipos de dados, calcula idade e limpa valores nulos."""
+    # ------------------------------
+    # CONVERSÃO DE DATAS E CÁLCULO DE IDADE
+    # ------------------------------
+    if 'data_nascimento' in df.columns and 'data_consulta' in df.columns:
+        df['data_nascimento'] = pd.to_datetime(df['data_nascimento'], errors='coerce')
+        df['data_consulta'] = pd.to_datetime(df['data_consulta'], errors='coerce')
+        if not df['data_nascimento'].isnull().all() and not df['data_consulta'].isnull().all():
+            df['idade'] = ((df['data_consulta'] - df['data_nascimento']).dt.days / 365.25).fillna(0).astype(int)
 
-    colunas_numericas = df_original.select_dtypes(include=np.number).columns.drop(
-        ['gestante_id', 'consulta_numero', 'chd_confirmada'],
-        errors='ignore'
-    )
+    # ------------------------------
+    # CONVERSÃO DE NUMÉRICOS
+    # ------------------------------
+    numericas = [
+        'imc', 'pressao_sistolica', 'frequencia_cardiaca_fetal',
+        'idade_gestacional', 'peso_fetal', 'circunferencia_cefalica_fetal_mm',
+        'circunferencia_abdominal_mm', 'comprimento_femur_mm', 'glicemia_jejum', 'glicemia_pos_prandial',
+        'hba1c'
+    ]
+    for col in numericas:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col].astype(str).str.replace(',', '.', regex=False), errors='coerce')
 
-    colunas_categoricas = df_original.select_dtypes(include=['object', 'category']).columns
+    # ------------------------------
+    # BOOLEANOS
+    # ------------------------------
+    bool_cols = [
+        'diabetes_gestacional', 'obesidade_pre_gestacional', 'tabagismo', 'alcoolismo', 'chd_confirmada'
+    ]
+    for col in bool_cols:
+        if col in df.columns:
+            # Garante que nulos/vazios se tornem False após a conversão para bool
+            df[col] = df[col].fillna(0).astype(str).str.strip().replace({'0': False, '1': True, 'TRUE': True, 'FALSE': False, '': False}).astype(bool)
 
-    for col in colunas_numericas:
-        amostra = df_base[col].dropna().sample(n_amostras, replace=True).values
-        novos_dados[col] = amostra
+    # ------------------------------
+    # REMOVER LINHAS CRÍTICAS NULAS
+    # ------------------------------
+    colunas_essenciais = ['idade', 'imc', 'diabetes_gestacional']
+    df.dropna(subset=[col for col in colunas_essenciais if col in df.columns], inplace=True)
+    
+    return df
 
-    for col in colunas_categoricas:
-        freq = df_base[col].value_counts(normalize=True)
-        amostra = np.random.choice(freq.index, size=n_amostras, p=freq.values)
-        novos_dados[col] = amostra
+if not df.empty:
+    df = tratar_dados(df)
 
-    novos_dados['chd_confirmada'] = valor_chd
-
-    return pd.DataFrame(novos_dados)
-
-
-df_sintetico = gerar_dados_sinteticos(df, 0, 135)
-df = pd.concat([df, df_sintetico], ignore_index=True)
-
-# ==============================
-# 4. CRIAR DIRETÓRIO OUTPUT
-# ==============================
-
-output_dir = os.path.join(BASE_DIR, "output")
-os.makedirs(output_dir, exist_ok=True)
-
-# ==============================
-# 5. INFORMAÇÕES GERAIS
-# ==============================
-
-missing_values = pd.DataFrame({
-    "faltantes": df.isnull().sum(),
-    "percentual": (df.isnull().sum() / len(df)) * 100
-})
-
-# missing_values.to_csv(os.path.join(output_dir, "valores_faltantes.csv"))
-
-# ==============================
-# 6. ESTATÍSTICA DESCRITIVA
-# ==============================
-
-numericas = df.select_dtypes(include=['float64', 'int64'])
-
-estatisticas = numericas.describe().T
-
-# estatisticas.to_csv(os.path.join(output_dir, "estatisticas_descritivas.csv"))
-
-# ==============================
-# 7. TESTE DE NORMALIDADE
-# ==============================
-
-normalidade = {}
-
-for col in numericas.columns:
-
-    dados = df[col].dropna()
-
-    if len(dados) > 3:
-        stat, p = shapiro(dados)
-        normalidade[col] = p
-
-normalidade_df = pd.DataFrame.from_dict(
-    normalidade,
-    orient="index",
-    columns=["p_valor"]
-)
-
-# normalidade_df.to_csv(os.path.join(output_dir, "teste_normalidade.csv"))
-
-# ==============================
-# 8. SEPARAR GRUPOS
-# ==============================
-
-chd = df[df['chd_confirmada'] == 1]
-sem_chd = df[df['chd_confirmada'] == 0]
-
-# ==============================
-# 9. TESTE MANN-WHITNEY
-# ==============================
-
-variaveis = [
-    'idade',
-    'imc',
-    'pressao_sistolica',
-    'frequencia_cardiaca_fetal',
-    'idade_gestacional'
-]
-
-resultados = []
-
-for var in variaveis:
-
-    if var in df.columns:
-
-        grupo1 = chd[var].dropna()
-        grupo2 = sem_chd[var].dropna()
-
-        if len(grupo1) > 0 and len(grupo2) > 0:
-
-            stat, p = mannwhitneyu(grupo1, grupo2)
-
-            resultados.append([var, p])
-
-teste_mw = pd.DataFrame(
-    resultados,
-    columns=["variavel", "p_valor"]
-)
-
-# teste_mw.to_csv(os.path.join(output_dir, "teste_mann_whitney.csv"), index=False)
-
-# ==============================
-# 10. TESTE QUI-QUADRADO
-# ==============================
-
-categoricas = [
-    'diabetes_gestacional',
-    'hipertensao',
-    'hipertensao_pre_eclampsia',
-    'obesidade_pre_gestacional',
-    'tabagismo',
-    'alcoolismo'
-]
-
-resultados_chi = []
-
-for var in categoricas:
-
-    if var in df.columns:
-
-        tabela = pd.crosstab(df[var], df['chd_confirmada'])
-
-        if tabela.shape[0] > 1:
-
-            chi2, p, dof, exp = chi2_contingency(tabela)
-
-            resultados_chi.append([var, p])
-
-chi_df = pd.DataFrame(
-    resultados_chi,
-    columns=["variavel", "p_valor"]
-)
-
-# chi_df.to_csv(os.path.join(output_dir, "teste_quiquadrado.csv"), index=False)
-
-# ==============================
-# 11. CORRELAÇÃO
-# ==============================
-
-corr = numericas.corr(method="spearman")
-
-# corr.to_csv(os.path.join(output_dir, "correlacao_spearman.csv"))
-
-# ==============================
-# 12. PREPARAR DADOS PARA JSON
-# ==============================
-
-# Dados para o histograma de idade
-counts, bins = np.histogram(df['idade'].dropna(), bins=10)
-dist_idade_data = {
-    "labels": [f"{int(bins[i])}-{int(bins[i+1])}" for i in range(len(bins)-1)],
-    "values": counts.tolist()
-}
-
-# Dados para o boxplot de IMC
-imc_chd_data = {
-    "com_chd": chd['imc'].dropna().tolist(),
-    "sem_chd": sem_chd['imc'].dropna().tolist()
-}
-
-# Agrupar todos os dados em um dicionário
-output_data = {
-    "tabelas": {
-        "valores_faltantes": missing_values.reset_index().rename(columns={'index': 'variavel'}).to_dict(orient='records'),
-        "estatisticas_descritivas": estatisticas.reset_index().rename(columns={'index': 'variavel'}).to_dict(orient='records'),
-        "teste_normalidade": normalidade_df.reset_index().rename(columns={'index': 'variavel'}).to_dict(orient='records'),
-        "teste_mann_whitney": teste_mw.to_dict(orient='records'),
-        "teste_quiquadrado": chi_df.to_dict(orient='records'),
-        "correlacao_spearman": corr.reset_index().rename(columns={'index': 'variavel'}).to_dict(orient='records')
-    },
-    "graficos": {
-        "distribuicao_idade": dist_idade_data,
-        "imc_por_chd": imc_chd_data
+# ------------------------------
+# GERAR HISTOGRAMA DE IDADE
+# ------------------------------
+if not df.empty and 'idade' in df.columns and not df['idade'].dropna().empty:
+    counts, bins = np.histogram(df['idade'].dropna(), bins=10)
+    dist_idade_data = {
+        "labels": [f"{int(bins[i])}-{int(bins[i+1])}" for i in range(len(bins)-1)],
+        "values": counts.tolist()
     }
+
+    # Salvar imagem
+    plt.figure(figsize=(6,4))
+    plt.bar(dist_idade_data['labels'], dist_idade_data['values'], color='skyblue')
+    plt.title('Distribuição de Idade')
+    plt.ylabel('Quantidade de Gestantes')
+    plt.xticks(rotation=45)
+    histograma_path = os.path.join(public_dir, "histograma_idade.png")
+    plt.tight_layout()
+    plt.savefig(histograma_path)
+    plt.close()
+else:
+    dist_idade_data = {"labels": [], "values": []}
+    histograma_path = None
+
+# ------------------------------
+# CONTAGEM DE DIABETES
+# ------------------------------
+cont_diabetes = int(df['diabetes_gestacional'].sum()) if not df.empty and 'diabetes_gestacional' in df.columns else 0
+
+# ------------------------------
+# RESULTADO FINAL JSON
+# ------------------------------
+resultado = {
+    "status": "concluido",
+    "histograma_idade": dist_idade_data,
+    "total_diabetes": cont_diabetes,
+    "imagens": {}
 }
+if histograma_path:
+    resultado['imagens']['Distribuicao_Idade'] = "/python_api/histograma_idade.png"
 
-
-# ==============================
-# 13. FINALIZAÇÃO
-# ==============================
-
-json_path = os.path.join(output_dir, "dashboard_data.json")
-with open(json_path, 'w', encoding='utf-8') as f:
-    json.dump(output_data, f, ensure_ascii=False, indent=4)
-
-print("Análise concluída.")
-print(f"Resultados salvos em: {json_path}")
+print(json.dumps(resultado, ensure_ascii=False, indent=4))

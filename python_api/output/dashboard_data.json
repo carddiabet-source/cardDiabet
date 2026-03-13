@@ -1,0 +1,160 @@
+{
+    "executado_em": "2026-03-13T11:03:33.902203",
+    "tabelas": {
+        "valores_faltantes": [
+            {
+                "variavel": "gestante_id",
+                "faltantes": 270,
+                "percentual": 100.0
+            },
+            {
+                "variavel": "consulta_numero",
+                "faltantes": 270,
+                "percentual": 100.0
+            },
+            {
+                "variavel": "idade",
+                "faltantes": 135,
+                "percentual": 50.0
+            },
+            {
+                "variavel": "imc",
+                "faltantes": 135,
+                "percentual": 50.0
+            },
+            {
+                "variavel": "pressao_sistolica",
+                "faltantes": 135,
+                "percentual": 50.0
+            },
+            {
+                "variavel": "frequencia_cardiaca_fetal",
+                "faltantes": 135,
+                "percentual": 50.0
+            },
+            {
+                "variavel": "idade_gestacional",
+                "faltantes": 135,
+                "percentual": 50.0
+            },
+            {
+                "variavel": "diabetes_gestacional",
+                "faltantes": 135,
+                "percentual": 50.0
+            },
+            {
+                "variavel": "obesidade_pre_gestacional",
+                "faltantes": 135,
+                "percentual": 50.0
+            },
+            {
+                "variavel": "tabagismo",
+                "faltantes": 135,
+                "percentual": 50.0
+            },
+            {
+                "variavel": "alcoolismo",
+                "faltantes": 135,
+                "percentual": 50.0
+            },
+            {
+                "variavel": "chd_confirmada",
+                "faltantes": 0,
+                "percentual": 0.0
+            }
+        ],
+        "estatisticas_descritivas": [
+            {
+                "variavel": "idade",
+                "count": 135.0,
+                "mean": 0.0,
+                "std": 0.0,
+                "min": 0.0,
+                "25%": 0.0,
+                "50%": 0.0,
+                "75%": 0.0,
+                "max": 0.0
+            },
+            {
+                "variavel": "imc",
+                "count": 135.0,
+                "mean": 0.0,
+                "std": 0.0,
+                "min": 0.0,
+                "25%": 0.0,
+                "50%": 0.0,
+                "75%": 0.0,
+                "max": 0.0
+            },
+            {
+                "variavel": "pressao_sistolica",
+                "count": 135.0,
+                "mean": 0.0,
+                "std": 0.0,
+                "min": 0.0,
+                "25%": 0.0,
+                "50%": 0.0,
+                "75%": 0.0,
+                "max": 0.0
+            }
+        ],
+        "teste_normalidade": [
+            {
+                "variavel": "idade",
+                "p_valor": 1.0
+            },
+            {
+                "variavel": "imc",
+                "p_valor": 1.0
+            },
+            {
+                "variavel": "pressao_sistolica",
+                "p_valor": 1.0
+            }
+        ],
+        "teste_mann_whitney": [],
+        "teste_quiquadrado": [],
+        "correlacao_spearman": [
+            {
+                "variavel": "idade",
+                "gestante_id": null,
+                "consulta_numero": null,
+                "idade": null,
+                "imc": null,
+                "pressao_sistolica": null,
+                "frequencia_cardiaca_fetal": null,
+                "idade_gestacional": null,
+                "diabetes_gestacional": null,
+                "obesidade_pre_gestacional": null,
+                "tabagismo": null,
+                "alcoolismo": null,
+                "chd_confirmada": null
+            },
+            {
+                "variavel": "imc",
+                "gestante_id": null,
+                "consulta_numero": null,
+                "idade": null,
+                "imc": null,
+                "pressao_sistolica": null,
+                "frequencia_cardiaca_fetal": null,
+                "idade_gestacional": null,
+                "diabetes_gestacional": null,
+                "obesidade_pre_gestacional": null,
+                "tabagismo": null,
+                "alcoolismo": null,
+                "chd_confirmada": null
+            }
+        ]
+    },
+    "graficos": {
+        "distribuicao_idade": {
+            "labels": ["0-0", "0-0", "0-0", "0-0", "0-0", "0-0", "0-0", "0-0", "0-0", "0-0"],
+            "values": [0, 0, 0, 0, 0, 135, 0, 0, 0, 0]
+        },
+        "imc_por_chd": {
+            "com_chd": [],
+            "sem_chd": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        }
+    }
+}
