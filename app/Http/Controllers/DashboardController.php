@@ -3,48 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\AnalisarDadosIA;
+use App\Jobs\GerarRelatorioDashboard;
 use App\Models\Consulta;
 use App\Models\Gestante;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\File;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        return view('dashboard', [
-            'totalGestantes' => Gestante::count(),
-            'totalConsultas' => Consulta::count(),
-            'chdConfirmadas' => Consulta::where('chd_confirmada', true)->count(),
-        ]);
-    }
+        $totalGestantes = Gestante::count();
+        $totalConsultas = Consulta::count();
+        $chdConfirmadas = Consulta::where('chd_confirmada', true)->count();
 
-    public function analisar()
-    {
-        $this->iniciarAnalise();
+        $reportPath = storage_path('app/analytics/dashboard_data.json');
 
-        // Redireciona de volta imediatamente com uma mensagem de sucesso
-        return redirect()
-            ->route('dashboard')
-            ->with('analise_iniciada', 'A análise foi iniciada em segundo plano. Os resultados aparecerão em breve.');
-    }
+        if (!File::exists($reportPath)) {
+            GerarRelatorioDashboard::dispatch();
+        }
 
-    public function verificarAnalise()
-    {
-        $status = Cache::get('analise_ia_status', 'ocioso');
-        $resultado = ($status === 'concluido') ? Cache::get('resultado_analise_ia') : null;
+        $analyticsData = null;
 
-        return response()->json(['status' => $status, 'resultado' => $resultado]);
-    }
+        if (File::exists($reportPath)) {
+            $analyticsData = json_decode(File::get($reportPath), true);
+        }
 
-    /**
-     * Método privado para encapsular a lógica de início da análise.
-     */
-    private function iniciarAnalise(): void
-    {
-        Cache::forget('resultado_analise_ia');
-        Cache::put('analise_ia_status', 'iniciando', now()->addMinutes(30));
-        AnalisarDadosIA::dispatch();
+        return view('dashboard', compact(
+            'totalGestantes',
+            'totalConsultas',
+            'chdConfirmadas',
+            'analyticsData'
+        ));
     }
 }

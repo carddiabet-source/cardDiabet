@@ -216,7 +216,7 @@ return [
         'company_name'   => 'razão social',
         'neighborhood' => 'bairro',
         'number'    => 'número',
-        'password'  => 'senha',
+        'password'  => 'Senha',
         'phone'     => 'telefone',
         'second'    => 'segundo',
         'sex'       => 'sexo',

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\GestanteResource;
 use App\Models\Gestante;
 use Illuminate\Http\Request;
 
@@ -9,7 +10,7 @@ class GestanteController extends Controller
 {
     public function index()
     {
-        $gestantes = Gestante::withCount('consultas')->orderBy('gestante_id')->get();
+        $gestantes = Gestante::withCount('consultas')->orderBy('gestante_id')->paginate(15);
 
         return view('gestantes.index', compact('gestantes'));
     }
@@ -22,22 +23,22 @@ class GestanteController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'gestante_id' => 'required',
+            'gestante_id' => 'required|unique:gestantes,gestante_id',
             'data_nascimento' => 'required|date',
         ]);
 
-        // Usar request->all() é seguro aqui por causa da propriedade $fillable no Model Gestante
-        Gestante::create($request->all());
+        $gestante = Gestante::create($request->all());
 
-        return redirect()->route('gestantes.index')->with('success', 'Gestante cadastrada com sucesso!');
+        return redirect()->route('gestantes.show', $gestante->id)->with('success', 'Gestante cadastrada com sucesso!');
     }
 
     public function show(Gestante $gestante)
     {
         $gestante->load(['consultas' => function ($query) {
-            $query->orderBy('data_consulta');
+            $query->orderBy('consulta_numero');
         }]);
 
+        // Passa a gestante e suas consultas para a view
         return view('gestantes.show', compact('gestante'));
     }
 
@@ -53,24 +54,20 @@ class GestanteController extends Controller
          $gestante = Gestante::findOrFail($id);
 
             $request->validate([
-                'gestante_id' => 'required',
+                'gestante_id' => 'required|unique:gestantes,gestante_id,' . $gestante->id,
                 'data_nascimento' => 'required|date',
             ]);
 
             $gestante->update($request->all());
 
-            return redirect()->route('gestantes.index')
-                ->with('success', 'Gestante atualizada com sucesso!');
+            return redirect()->route('gestantes.show', $gestante->id)->with('success', 'Dados da gestante atualizados com sucesso!');
     }
 
     public function destroy($id)
     {
-        //
          $gestante = Gestante::findOrFail($id);
-
          $gestante->delete();
 
-          return redirect()->route('gestantes.index')
-        ->with('success', 'Gestante excluída com sucesso!');
+          return redirect()->route('gestantes.index')->with('success', 'Gestante removida com sucesso!');
     }
 }
